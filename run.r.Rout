@@ -1,0 +1,86 @@
+
+R version 3.5.2 (2018-12-20) -- "Eggshell Igloo"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> require(shiny)
+Loading required package: shiny
+Warning message:
+package 'shiny' was built under R version 3.5.3 
+> folder_address = getwd() #"A:\\MMC\\Building_Blocks\\Planners\\PlanApp\\WebApp - Auto refresh"
+> runApp(folder_address, launch.browser = TRUE)
+
+Listening on http://127.0.0.1:4073
+Warning: package 'plyr' was built under R version 3.5.3
+Warning: package 'dplyr' was built under R version 3.5.3
+
+Attaching package: 'dplyr'
+
+The following objects are masked from 'package:plyr':
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise,
+    summarize
+
+The following objects are masked from 'package:data.table':
+
+    between, first, last
+
+The following objects are masked from 'package:stats':
+
+    filter, lag
+
+The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+
+Warning: package 'readstata13' was built under R version 3.5.3
+Warning: package 'hydroGOF' was built under R version 3.5.3
+Loading required package: zoo
+
+Attaching package: 'zoo'
+
+The following objects are masked from 'package:base':
+
+    as.Date, as.Date.numeric
+
+Warning: package 'survival' was built under R version 3.5.3
+Warning: package 'readxl' was built under R version 3.5.3
+Warning: package 'lubridate' was built under R version 3.5.3
+
+Attaching package: 'lubridate'
+
+The following object is masked from 'package:plyr':
+
+    here
+
+The following objects are masked from 'package:data.table':
+
+    hour, isoweek, mday, minute, month, quarter, second, wday, week,
+    yday, year
+
+The following object is masked from 'package:base':
+
+    date
+
+Warning: Error in : `path` does not exist: '\\nas001\MMC-ALG\Data-analyse-BI\Building Blocks\Planners\Data/Huidig_Bedbezetting_Beddenhuis.xlsx'
+  52: stop
+  51: check_file
+  50: read_excel
+  49: loadData
+  48: startScript
+  47: server [A:\MMC\Building_Blocks\Planners\PlanApp\WebApp - Auto refresh/server.R#14]
+Error : `path` does not exist: '\\nas001\MMC-ALG\Data-analyse-BI\Building Blocks\Planners\Data/Huidig_Bedbezetting_Beddenhuis.xlsx'
