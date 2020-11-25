@@ -31,7 +31,7 @@ deps[deps == 3] <- "2C"
 deps[deps == 4] <- "2D"
 
 # Load data
-train <- loadTrainData();
+train <- loadTrainData()
 data  <- loadData(networkPath)
 
 # Make overview 
@@ -462,7 +462,6 @@ reload <- function(deps){
   dataTrain <- read.csv('../Data/exports/dataTrain.csv')
   
   # Pre-format data 
-  
   data$dataPlanning <- data$dataPlanning %>%
     filter(reserveringsafdeling %in% deps | grepl("Carotis", okverrichtingomschrijving) == T) %>%
     filter(opnemendspecialisme != "GYN") %>%
