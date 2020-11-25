@@ -533,13 +533,12 @@ reload <- function(deps){
 #' @export
 plot_results <- function(data){
   # legend and color data
-  legend  <- factor(c("Planning", "Meest recente mutaties"))
+  legend  <- factor(c("Planning"))
   palette <- c(rgb(120/255, 120/255, 120/255), rgb(20/255, 150/255, 40/255), rgb(60/255, 230/255, 90/255))
   
   #plotting
   diagram <- ggplot(data = data, aes(x=dates)) +    
-    geom_bar(stat="identity", aes(y=prob.p, fill = "Recente mutaties")) +
-    geom_bar(stat="identity", aes(y=prob.r, fill = "Planning")) +
+    geom_bar(stat="identity", aes(y=prob.p, fill = "Planning")) +
     geom_bar(stat="identity", aes(y=prob.c, fill = "Huidige bezetting")) +
     scale_fill_manual("legenda", values = palette) + 
     #geom_line(aes(x=data$dates, y=data$max, color = "Max capaciteit")) +  
