@@ -61,7 +61,7 @@ write.csv(dataCurr, '../Data/exports/dataCurrent.csv')
 write.csv(data$dataPlanning, '../Data/exports/dataplanning.csv')
 
 # Load cox proportional hazard model
-load("../Data/training sets/fitCox.RData")
+load("../Data/fitCox.RData")
 
 # Get predictions for current and planned patients
 # Current patients
@@ -456,7 +456,7 @@ reload <- function(deps){
   while( empty(data$dataPlanning) | empty(data$dataCurrent) ) {
     print("Empty dataframe")
     Sys.sleep(5)
-    data <- reloadData(networkPath)
+    data <- loadData(networkPath)
   }
   print('Dataframe filled')  
   dataTrain <- read.csv('../Data/exports/dataTrain.csv')
@@ -483,7 +483,7 @@ reload <- function(deps){
   write.csv(data$dataPlan, '../Data/exports/dataplanning.csv')
   
   # Load cox proportional hazard model
-  load("../Data/training sets/fitCox.RData")
+  load("../Data/fitCox.RData")
   
   # Get predictions for current and planned patients
   # Current patients
