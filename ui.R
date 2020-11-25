@@ -1,4 +1,17 @@
-# Set up user interface
+# Title:   Web App User Interface
+# Name:    ui.R
+# Author:  Stijn Middelhuis
+# Project: Regulate bed occupation in the clinic
+# file:    ui.R
+#
+# Description:
+# This file contains the set up of the user interface
+# of the Planning Web Application. The UI interface
+# consists of a html fluid page on which several html
+# items are placed with a specific function and output.
+# The input for the different items are requested and 
+# returned by the server.
+
 ui <- fluidPage(
   titlePanel( "Visualisatie bezetting beddenhuis na OK" ),
   mainPanel(

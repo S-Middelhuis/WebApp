@@ -1,6 +1,12 @@
+# Title:   Web App functions
+# Name:    functions.R
+# Author:  Stijn Middelhuis
+# Project: Regulate bed occupation in the clinic
+#
+# Description:
 # This file contains functions used for the
 # cox proportional hazard model and the functions
-# necessary for the web application. 
+# necessary to run the web application. 
 
 #' @title runScript
 #' @description Run main script 

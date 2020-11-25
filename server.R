@@ -1,4 +1,15 @@
-# Set up server
+# Title:   Web App Server
+# Name:    server.R
+# Author:  Stijn Middelhuis
+# Project: Regulate bed occupation in the clinic
+#
+# Description:
+# This file contains the functions to set up the server
+# of the Planning Web Application. The server reads the
+# provided input from the UI, observes user actions and
+# runs the necessary functions accordingly and returns 
+# the requested output to the UI.
+
 server <- function(input, output, session) {
   source("functions.R")
   
