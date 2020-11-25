@@ -70,8 +70,8 @@ server <- function(input, output, session) {
               legend.title = element_blank())
       
       # Read tables
-      IC         <- read.csv('Data/overzichtIC.csv')
-      SPEC       <- read.csv('Data/overzichtSPEC.csv')
+      IC         <- read.csv('../Data/overzichtIC.csv')
+      SPEC       <- read.csv('../Data/overzichtSPEC.csv')
       IC   <- IC[,-c(1)]
       n    <- which( as.Date(IC$Datum) == floor_date(Sys.Date()+6, "week")+1 )
       
@@ -82,8 +82,8 @@ server <- function(input, output, session) {
         print("render")
         output$plot <- renderPlot({ plot$main }, width = "auto", height = "auto")
         # Render tables in tabs
-        output$wachtlijst <- renderTable(read.csv('Data/wachtlijst.csv'))
-        output$huidig     <- renderTable(read.csv('Data/current.csv'))
+        output$wachtlijst <- renderTable(read.csv('../Data/wachtlijst.csv'))
+        output$huidig     <- renderTable(read.csv('../Data/current.csv'))
         output$overzichtSPEC  <- renderTable(SPEC)
         output$overzichtIC_1 <- renderTable(IC[1:n-1,])
         output$overzichtIC_2 <- renderTable(IC[n:nrow(IC),])
@@ -115,8 +115,8 @@ server <- function(input, output, session) {
             legend.title = element_blank())
      
       # Read tables
-      IC         <- read.csv('Data/overzichtIC.csv')
-      SPEC       <- read.csv('Data/overzichtSPEC.csv')
+      IC         <- read.csv('../Data/overzichtIC.csv')
+      SPEC       <- read.csv('../Data/overzichtSPEC.csv')
       IC <- IC[,-c(1)]
       n    <- which( as.Date(IC$Datum) == floor_date(Sys.Date()+5, "week")+1 )
       colnames(SPEC)[1] <- "Datum"
@@ -127,8 +127,8 @@ server <- function(input, output, session) {
       output$plot <- renderPlot({ plot$main }, width = "auto", height = "auto")
       
       # Render tables in tabs
-      output$wachtlijst <- renderTable(read.csv('Data/wachtlijst.csv'))
-      output$huidig     <- renderTable(read.csv('Data/current.csv'))
+      output$wachtlijst <- renderTable(read.csv('../Data/wachtlijst.csv'))
+      output$huidig     <- renderTable(read.csv('../Data/current.csv'))
       output$overzichtSPEC <- renderTable(SPEC)
       output$overzichtIC_1 <- renderTable(IC[1:n-1,])
       output$overzichtIC_2 <- renderTable(IC[n:nrow(IC),])

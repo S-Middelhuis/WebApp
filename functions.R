@@ -54,13 +54,13 @@ dataCurr  <- formatTest(data$dataCurrent, dataTrain)
 dataPlan  <- formatTest(data$dataPlan, dataTrain)
 dataWacht <- formatTest(data$wachtlijst, dataTrain)
 
-write.csv(dataTrain, 'Data/dataTrain.csv')
-write.csv(dataWacht, 'Data/wachtlijst.csv')
-write.csv(dataCurr, 'Data/dataCurrent.csv')
-write.csv(data$dataPlanning, 'Data/dataplanning.csv')
+write.csv(dataTrain, '../Data/dataTrain.csv')
+write.csv(dataWacht, '../Data/wachtlijst.csv')
+write.csv(dataCurr, '../Data/dataCurrent.csv')
+write.csv(data$dataPlanning, '../Data/dataplanning.csv')
 
 # Load cox proportional hazard model
-load("Data/fitCox.RData")
+load("../Data/fitCox.RData")
 
 # Get predictions for current and planned patients
 # Current patients
@@ -97,7 +97,7 @@ maxWeekday <- 14
 fc$max <- ifelse(weekdays(fc$dates) %in% c("zaterdag", "zondag"), maxWeekend, maxWeekday)
 
 # Save current and initial bed occupation to csv files
-write.csv(fc, 'Data/fc.csv')
+write.csv(fc, '../Data/fc.csv')
 
 # Prepare data for app tabs
 getCurrent(data$dataCurrent, deps)
@@ -381,7 +381,7 @@ getCurrent <- function(data, deps){
     filter(statusomschrijving == "Opgenomen") %>%
     filter(afdelingcode %in% deps) %>%
     distinct(opnamenummer, .keep_all = T)
-  write.csv(current, 'Data/current.csv')
+  write.csv(current, '../Data/current.csv')
 }
 
 
@@ -396,10 +396,10 @@ getOverview <- function(dataIC, dataPlan, deps){
   wk <- floor_date(Sys.Date(), "week")+1
   
   datIC <- dataIC %>%
-    mutate( GeplandeOpnamedatum = as.Date(GeplandeOpnamedatum, format="%Y-%m-%d %H:%M:%OS") ) %>%
-    mutate( icdate = ifelse(VER_CODE == "33450" & weekdays(GeplandeOpnamedatum) != "vrijdag", GeplandeOpnamedatum+1,  GeplandeOpnamedatum) ) %>%
+    mutate( geplandeopnamedatum = as.Date(geplandeopnamedatum, format="%Y-%m-%d %H:%M:%OS") ) %>%
+    mutate( icdate = ifelse(VER_CODE == "33450" & weekdays(geplandeopnamedatum) != "vrijdag", geplandeopnamedatum+1,  geplandeopnamedatum) ) %>%
     mutate( icdate = as.Date(icdate) ) %>%
-    mutate( Postoperatieve_bestemming = ifelse(Postoperatieve_bestemming == "MC", "IC", Postoperatieve_bestemming)) %>%
+    mutate( postoperatieve_bestemming = ifelse(postoperatieve_bestemming == "MC", "IC", postoperatieve_bestemming)) %>%
     filter( icdate >= wk & icdate <=  wk + 13) 
     
   
@@ -416,15 +416,15 @@ getOverview <- function(dataIC, dataPlan, deps){
   
   # Generate and write tables
   spec <- table(data.frame(datSPEC$opnamedatum, datSPEC$opnemendspecialisme))
-  ic   <- table(data.frame(datIC$icdate, datIC$Postoperatieve_bestemming))
-  write.csv(spec, 'Data/overzichtSPEC.csv')
-  write.csv(ic, 'Data/overzichtIC.csv')
+  ic   <- table(data.frame(datIC$icdate, datIC$postoperatieve_bestemming))
+  write.csv(spec, '../Data/overzichtSPEC.csv')
+  write.csv(ic, '../Data/overzichtIC.csv')
   
   # Merge ic table with date range for 2 weeks
   daterange <- as.Date(seq(Sys.Date(), wk+13, by = 1))
   total     <- data.frame("Datum" = daterange, "IC" = as.integer(numeric(length(daterange))))
   
-  ic = read.csv('Data/overzichtIC.csv', header = T)
+  ic = read.csv('../Data/overzichtIC.csv', header = T)
   data.frame(ic)
   colnames(ic) = c("Datum", "IC")
   ic$Datum <- as.Date(ic$Datum)
@@ -435,7 +435,7 @@ getOverview <- function(dataIC, dataPlan, deps){
   total[ic, on = c("Datum"), IC := i.IC]
   total <- total %>%
     filter((weekdays(Datum) %!in% c('zaterdag','zondag')))
-  write.csv(total, 'Data/overzichtIC.csv')
+  write.csv(total, '../Data/overzichtIC.csv')
   
 }
 
@@ -468,7 +468,7 @@ reload <- function(deps){
     data <- reloadData(networkPath)
   }
   print('Dataframe filled')  
-  dataTrain <- read.csv('Data/dataTrain.csv')
+  dataTrain <- read.csv('../Data/dataTrain.csv')
   
   # Pre-format data 
   
@@ -487,12 +487,12 @@ reload <- function(deps){
   dataPlan  <- formatTest(data$dataPlan, dataTrain)
   dataWacht <- formatTest(data$wachtlijst, dataTrain)
   
-  write.csv(dataWacht, 'Data/wachtlijst.csv')
-  write.csv(dataCurr, 'Data/dataCurrent.csv')
-  write.csv(data$dataPlan, 'Data/dataplanning.csv')
+  write.csv(dataWacht, '../Data/wachtlijst.csv')
+  write.csv(dataCurr, '../Data/dataCurrent.csv')
+  write.csv(data$dataPlan, '../Data/dataplanning.csv')
   
   # Load cox proportional hazard model
-  load("Data/fitCox.RData")
+  load("../Data/fitCox.RData")
   
   # Get predictions for current and planned patients
   # Current patients
