@@ -43,7 +43,7 @@ server <- function(input, output, session) {
       output$check <- renderText("")
   })
   observeEvent(input$btn_auto, {
-      refresh$timer <- reactiveTimer(10000) 
+      refresh$timer <- reactiveTimer(600000) 
       output$check <- renderText("Auto refresh enabled")
   })
   ### Reload data ###
