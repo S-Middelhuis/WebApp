@@ -7,103 +7,103 @@
 #' @param deps Selected departments
 #' @export
 startScript <- function(deps){
-ptm <- proc.time()
-
-# Folder where data is stored
-networkPath <- "\\\\nas001\\MMC-ALG\\Data-analyse-BI\\Building Blocks\\Planners\\Data"
-
-# Libraries
-library(data.table)
-library(plyr)
-library(dplyr)
-library(readstata13)
-library(ggplot2)
-library(hydroGOF)
-library(survival)
-library(readxl)
-library(lubridate)
-source("functions.r")
-
-deps = as.integer(deps)
-deps[deps == 1] <- "2A"
-deps[deps == 2] <- "2B"
-deps[deps == 3] <- "2C"
-deps[deps == 4] <- "2D"
-
-# Load data
-train <- loadTrainData()
-data  <- loadData(networkPath)
-
-# Make overview 
-getOverview(data$iclist, data$dataPlanning, deps)
-
-# Pre-format data 
-train <- train[train$afdelingcode %in% c("2A", "2B", "2C", "2D"), ]
-data$dataPlanning <- data$dataPlanning %>%
-  filter(reserveringsafdeling %in% deps | grepl("Carotis", okverrichtingomschrijving) == T) %>%
-  filter(opnemendspecialisme != "GYN") %>%
-  mutate(opnamedatum = as.Date(opnamedatum, format = "%d-%m-%Y"))
-data$dataCurrent <- data$dataCurrent %>%
-  filter(afdelingcode %in% deps) %>%
-  filter(okprioriteitcodeomschrijving == "Electief (planbaar)")
-recentPlanning <- data$dataPlanning %>%
-  filter(data$dataPlan$laatstemutatiedatumtijd == max(data$dataPlan$laatstemutatiedatumtijd))
-
-# Data corrections and column selection
-dataTrain <- formatTrain(train)
-dataCurr  <- formatTest(data$dataCurrent, dataTrain)
-dataPlan  <- formatTest(data$dataPlan, dataTrain)
-dataWacht <- formatTest(data$wachtlijst, dataTrain)
-
-write.csv(dataTrain, '../Data/exports/dataTrain.csv')
-write.csv(dataWacht, '../Data/exports/wachtlijst.csv')
-write.csv(dataCurr, '../Data/exports/dataCurrent.csv')
-write.csv(data$dataPlanning, '../Data/exports/dataplanning.csv')
-
-# Load cox proportional hazard model
-load("../Data/fitCox.RData")
-
-# Get predictions for current and planned patients
-# Current patients
-predictions.current <- survfit(fitCox, newdata = dataCurr)
-dailyPredictions.current <- predictions.current$surv
-colnames(dailyPredictions.current) <- dataCurr$opnamenummer
-# Planned patients
-predictions.planning <- survfit(fitCox, newdata = dataPlan)
-dailyPredictions.planning <- predictions.planning$surv
-colnames(dailyPredictions.planning) <- dataPlan$opnamenummer
-
-# Fill planning with current patients and planned patients
-results.planning <- formatOutputPlanning(dailyPredictions.planning, dailyPredictions.current, dataPlan, dataCurr)
-results.recent   <- results.planning[, -which(names(results.planning) %in% as.character(recentPlanning$opnamenummer))]
-results.current  <- results.planning[, which(names(results.planning[,-1]) %in% as.character(dataCurr$opnamenummer))]
-
-# Write results to data frame
-fc.current  <- cbind(data.frame(results.current$tDate), data.frame(rowSums(results.current[,-1])))
-fc.planning <- cbind(data.frame(results.planning$tDate),data.frame(rowSums(results.planning[,-1])))
-fc.recent   <- cbind(data.frame(results.recent$tDate), data.frame(rowSums(results.recent[,-1])))
-
-# Keep data upward of today
-fc.current  <- fc.current[fc.current[,1] >= Sys.Date(), ]
-fc.planning <- fc.planning[fc.planning[,1] >= Sys.Date(), ]
-fc.recent   <- fc.recent[fc.recent[,1] >= Sys.Date(), ]
-
-# Bind data and rename
-fc <- cbind(fc.current,fc.planning[,2], fc.recent[,2])
-colnames(fc)  <- c("dates","prob.c", "prob.p", "prob.r")
-
-# Add red line to show maximum capacity
-maxWeekend <- 8
-maxWeekday <- 14
-fc$max <- ifelse(weekdays(fc$dates) %in% c("zaterdag", "zondag"), maxWeekend, maxWeekday)
-
-# Save current and initial bed occupation to csv files
-write.csv(fc, '../Data/exports/fc.csv')
-
-# Prepare data for app tabs
-getCurrent(data$dataCurrent, deps)
-print(proc.time() - ptm)
-return(fc)
+  ptm <- proc.time()
+  
+  # Folder where data is stored
+  networkPath <- "\\\\nas001\\MMC-ALG\\Data-analyse-BI\\Building Blocks\\Planners\\Data"
+  
+  # Libraries
+  library(data.table)
+  library(plyr)
+  library(dplyr)
+  library(readstata13)
+  library(ggplot2)
+  library(hydroGOF)
+  library(survival)
+  library(readxl)
+  library(lubridate)
+  source("functions.r")
+  
+  deps = as.integer(deps)
+  deps[deps == 1] <- "2A"
+  deps[deps == 2] <- "2B"
+  deps[deps == 3] <- "2C"
+  deps[deps == 4] <- "2D"
+  
+  # Load data
+  train <- loadTrainData()
+  data  <- loadData(networkPath)
+  
+  # Make overview 
+  getOverview(data$iclist, data$dataPlanning, deps)
+  
+  # Pre-format data 
+  train <- train[train$afdelingcode %in% c("2A", "2B", "2C", "2D"), ]
+  data$dataPlanning <- data$dataPlanning %>%
+    filter(reserveringsafdeling %in% deps | grepl("Carotis", okverrichtingomschrijving) == T) %>%
+    filter(opnemendspecialisme != "GYN") %>%
+    mutate(opnamedatum = as.Date(opnamedatum, format = "%d-%m-%Y"))
+  data$dataCurrent <- data$dataCurrent %>%
+    filter(afdelingcode %in% deps) %>%
+    filter(okprioriteitcodeomschrijving == "Electief (planbaar)")
+  recentPlanning <- data$dataPlanning %>%
+    filter(data$dataPlan$laatstemutatiedatumtijd == max(data$dataPlan$laatstemutatiedatumtijd))
+  
+  # Data corrections and column selection
+  dataTrain <- formatTrain(train)
+  dataCurr  <- formatTest(data$dataCurrent, dataTrain)
+  dataPlan  <- formatTest(data$dataPlan, dataTrain)
+  dataWacht <- formatTest(data$wachtlijst, dataTrain)
+  
+  write.csv(dataTrain, '../Data/exports/dataTrain.csv')
+  write.csv(dataWacht, '../Data/exports/wachtlijst.csv')
+  write.csv(dataCurr, '../Data/exports/dataCurrent.csv')
+  write.csv(data$dataPlanning, '../Data/exports/dataplanning.csv')
+  
+  # Load cox proportional hazard model
+  load("../Data/fitCox.RData")
+  
+  # Get predictions for current and planned patients
+  # Current patients
+  predictions.current <- survfit(fitCox, newdata = dataCurr)
+  dailyPredictions.current <- predictions.current$surv
+  colnames(dailyPredictions.current) <- dataCurr$opnamenummer
+  # Planned patients
+  predictions.planning <- survfit(fitCox, newdata = dataPlan)
+  dailyPredictions.planning <- predictions.planning$surv
+  colnames(dailyPredictions.planning) <- dataPlan$opnamenummer
+  
+  # Fill planning with current patients and planned patients
+  results.planning <- formatOutputPlanning(dailyPredictions.planning, dailyPredictions.current, dataPlan, dataCurr)
+  results.recent   <- results.planning[, -which(names(results.planning) %in% as.character(recentPlanning$opnamenummer))]
+  results.current  <- results.planning[, which(names(results.planning[,-1]) %in% as.character(dataCurr$opnamenummer))]
+  
+  # Write results to data frame
+  fc.current  <- cbind(data.frame(results.current$tDate), data.frame(rowSums(results.current[,-1])))
+  fc.planning <- cbind(data.frame(results.planning$tDate),data.frame(rowSums(results.planning[,-1])))
+  fc.recent   <- cbind(data.frame(results.recent$tDate), data.frame(rowSums(results.recent[,-1])))
+  
+  # Keep data upward of today
+  fc.current  <- fc.current[fc.current[,1] >= Sys.Date(), ]
+  fc.planning <- fc.planning[fc.planning[,1] >= Sys.Date(), ]
+  fc.recent   <- fc.recent[fc.recent[,1] >= Sys.Date(), ]
+  
+  # Bind data and rename
+  fc <- cbind(fc.current,fc.planning[,2], fc.recent[,2])
+  colnames(fc)  <- c("dates","prob.c", "prob.p", "prob.r")
+  
+  # Add red line to show maximum capacity
+  maxWeekend <- 8
+  maxWeekday <- 14
+  fc$max <- ifelse(weekdays(fc$dates) %in% c("zaterdag", "zondag"), maxWeekend, maxWeekday)
+  
+  # Save current and initial bed occupation to csv files
+  write.csv(fc, '../Data/exports/fc.csv')
+  
+  # Prepare data for app tabs
+  getCurrent(data$dataCurrent, deps)
+  print(proc.time() - ptm)
+  return(fc)
 }
 
 
@@ -129,7 +129,6 @@ loadTrainData <- function(){
   
   # Bind years together
   datTrain <- rbind(dat16, dat17, dat18)
-  
   return(datTrain)
 }
 
@@ -149,7 +148,6 @@ loadData <- function(path){
   # Fix date time in planning data
   datPlanning$laatstemutatiedatumtijd <- as.POSIXct(datPlanning$laatstemutatiedatumtijd, format = "%d-%m-%Y %H:%M")
   datPlanning$laatstemutatiedatumtijd <- as.Date(datPlanning$laatstemutatiedatumtijd)
-  
   return(list("dataCurrent" = datCurrent, "dataPlanning" = datPlanning, "wachtlijst" = wachtlijst, "iclist" = iclist))
 }
 
@@ -244,9 +242,6 @@ formatTest <- function(data, hist){
         
      data$diabetes[is.na(data$diabetes)] <- "nee"
      data$roken[is.na(data$roken)] <- "nooit"
-     
-     #mutate(diabetes = ifelse(diabetes == "NULL", "nee", diabetes)) %>%
-     #mutate(roken = ifelse(roken == "NULL", "nooit", roken))
    return(data)
 }
 
@@ -388,12 +383,11 @@ getOverview <- function(dataIC, dataPlan, deps){
   
   datIC <- dataIC %>%
     mutate( geplandeopnamedatum = as.Date(geplandeopnamedatum, format="%Y-%m-%d %H:%M:%OS") ) %>%
-    mutate( icdate = ifelse(VER_CODE == "33450" & weekdays(geplandeopnamedatum) != "vrijdag", geplandeopnamedatum+1,  geplandeopnamedatum) ) %>%
+    mutate( icdate = ifelse(VER_CODE == "33450" & weekdays(geplandeopnamedatum) != "vrijdag", geplandeopnamedatum+0,  geplandeopnamedatum) ) %>%
     mutate( icdate = as.Date(icdate) ) %>%
     mutate( postoperatieve_bestemming = ifelse(postoperatieve_bestemming == "MC", "IC", postoperatieve_bestemming)) %>%
     filter( icdate >= wk & icdate <=  wk + 13) 
     
-  
   dataPlan$opnamedatum <- as.Date(dataPlan$opnamedatum, format = "%d-%m-%Y")
   if (weekdays(Sys.Date()) == "vrijdag"){
     datSPEC <- dataPlan %>%
@@ -427,12 +421,11 @@ getOverview <- function(dataIC, dataPlan, deps){
   total <- total %>%
     filter((weekdays(Datum) %!in% c('zaterdag','zondag')))
   write.csv(total, '../Data/exports/overzichtIC.csv')
-  
 }
 
 
-#' @title Reload
-#' @description Function to reload the dataset
+#' @title Reload application
+#' @description Function to reload the dataframe for the application
 #' @param deps selected departments
 #' @export
 reload <- function(deps){
