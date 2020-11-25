@@ -526,10 +526,30 @@ reload <- function(deps){
   return(fc)
 }
 
-insertRow <- function(existingDF, newrow, r) {
-  existingDF[seq(r+1,nrow(existingDF)+1),] <- existingDF[seq(r,nrow(existingDF)),]
-  existingDF[r,] <- newrow
-  existingDF
+
+#' @title Plot results
+#' @description Function to plot the results in the web application
+#' @param data The data from the application
+#' @export
+plot_results <- function(data){
+  # legend and color data
+  legend  <- factor(c("Planning", "Meest recente mutaties"))
+  palette <- c(rgb(120/255, 120/255, 120/255), rgb(20/255, 150/255, 40/255), rgb(60/255, 230/255, 90/255))
+  
+  #plotting
+  diagram <- ggplot(data = data, aes(x=dates)) +    
+    geom_bar(stat="identity", aes(y=prob.p, fill = "Recente mutaties")) +
+    geom_bar(stat="identity", aes(y=prob.r, fill = "Planning")) +
+    geom_bar(stat="identity", aes(y=prob.c, fill = "Huidige bezetting")) +
+    scale_fill_manual("legenda", values = palette) + 
+    #geom_line(aes(x=data$dates, y=data$max, color = "Max capaciteit")) +  
+    #scale_color_manual("Legenda", values = "red") +
+    xlab("Datum") +
+    ylab("Bedden bezetting") +
+    theme(legend.key = element_blank(),
+          legend.title = element_blank())
+          
+  return(diagram)
 }
 
 #dataTrain$length_of_stay <- Surv(dataTrain$length_of_stay, rep(1, nrow(dataTrain)))

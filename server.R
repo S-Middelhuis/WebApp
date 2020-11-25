@@ -1,38 +1,21 @@
 # Set up server
 server <- function(input, output, session) {
   source("functions.R")
-  legend  <- factor(c("Planning", "Meest recente mutaties"))
-  palette <- c(rgb(120/255, 120/255, 120/255), rgb(20/255, 150/255, 40/255), rgb(60/255, 230/255, 90/255))
   
-  # Create reactive plots and tables
+  ### Create reactive plots and tables ###
   plot  <- reactiveValues(main=NULL, layer1=NULL)
   table <- reactiveValues(info=NULL, date=NULL)
   
-  # Run main script
+  ### Run main script ###
   observe({
     deps <- input$checkGroup
     data <- startScript(deps)
     
     # Plot results
-    plot$main <- ggplot(data = data, aes(x=dates)) +    
-      geom_bar(stat="identity", aes(y=prob.p, fill = "Recente mutaties")) +
-      geom_bar(stat="identity", aes(y=prob.r, fill = "Planning")) +
-      geom_bar(stat="identity", aes(y=prob.c, fill = "Huidige bezetting")) +
-      scale_fill_manual("legenda", values = palette) + 
-      #geom_line(aes(x=data$dates, y=data$max, color = "Max capaciteit")) +  
-      #scale_color_manual("Legenda", values = "red") +
-      xlab("Datum") +
-      ylab("Bedden bezetting") +
-      theme(legend.key = element_blank(),
-            legend.title = element_blank())
+    plot$main <- plot_results(data)
   })
   
-  # Observe action button
-  observe({
-    print("render")
-    output$plot <- renderPlot({ plot$main }, width = "auto", height = "auto")
-  })
-  
+  # Set button values
   refresh <- reactiveValues(timer=reactiveTimer(Inf))
   
   observeEvent(input$btn_terminate, {
@@ -45,23 +28,15 @@ server <- function(input, output, session) {
       output$check <- renderText("Auto refresh enabled")
   })
   
+  
   ### Reload data ###
+  # Automatic refresh
   observe({
       refresh$timer()
       data <- reload(input$checkGroup)
       
       # Plot results
-      plot$main <- ggplot(data = data, aes(x=dates)) +    
-        geom_bar(stat="identity", aes(y=prob.p, fill = "Recente mutaties")) +
-        geom_bar(stat="identity", aes(y=prob.r, fill = "Planning")) +
-        geom_bar(stat="identity", aes(y=prob.c, fill = "Huidige bezetting")) +
-        scale_fill_manual("legenda", values = palette) + 
-        #geom_line(aes(x=data$dates, y=data$max, color = "Max capaciteit")) +  
-        #scale_color_manual("Legenda", values = "red") +
-        xlab("Datum") +
-        ylab("Bedden bezetting") +
-        theme(legend.key = element_blank(),
-              legend.title = element_blank())
+      plot$main <- plot_results(data)
       
       # Read tables
       IC   <- read.csv('../Data/exports/overzichtIC.csv')
@@ -75,6 +50,7 @@ server <- function(input, output, session) {
       observe({
         print("render")
         output$plot <- renderPlot({ plot$main }, width = "auto", height = "auto")
+        
         # Render tables in tabs
         output$wachtlijst <- renderTable(read.csv('../Data/exports/wachtlijst.csv'))
         output$huidig     <- renderTable(read.csv('../Data/exports/current.csv'))
@@ -84,29 +60,20 @@ server <- function(input, output, session) {
     })
   })
   
+  # Manual refresh
   observeEvent(input$btn_refresh, {
     deps <- input$checkGroup
     data <- reload(deps)
     
     # Plot results
-    plot$main <- ggplot(data = data, aes(x=dates)) +    
-      geom_bar(stat="identity", aes(y=prob.p, fill = "Recente mutaties")) +
-      geom_bar(stat="identity", aes(y=prob.r, fill = "Planning")) +
-      geom_bar(stat="identity", aes(y=prob.c, fill = "Huidige bezetting")) +
-      scale_fill_manual("Legenda", values = palette) + 
-      #geom_line(aes(x=data$dates, y=data$max, color = "Max capaciteit")) +  
-      #scale_color_manual("Legenda", values = "red") +
-      xlab("Datum") +
-      ylab("Bedden bezetting") +
-      theme(legend.key = element_blank(),
-            legend.title = element_blank())
+    plot$main <- plot_results(data)
      
-      # Read tables
-      IC   <- read.csv('../Data/exports/overzichtIC.csv')
-      SPEC <- read.csv('../Data/exports/overzichtSPEC.csv')
-      IC   <- IC[,-c(1)]
-      n    <- which( as.Date(IC$Datum) == floor_date(Sys.Date()+5, "week")+1 )
-      colnames(SPEC)[1] <- "Datum"
+    # Read tables
+    IC   <- read.csv('../Data/exports/overzichtIC.csv')
+    SPEC <- read.csv('../Data/exports/overzichtSPEC.csv')
+    IC   <- IC[,-c(1)]
+    n    <- which( as.Date(IC$Datum) == floor_date(Sys.Date()+5, "week")+1 )
+    colnames(SPEC)[1] <- "Datum"
     
     # Observe action button
     observe({
