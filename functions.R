@@ -50,7 +50,7 @@ recentPlanning <- data$dataPlanning %>%
   filter(data$dataPlan$laatstemutatiedatumtijd == max(data$dataPlan$laatstemutatiedatumtijd))
 
 # Data corrections and column selection
-dataTrain <- formatTrain(data$train)
+dataTrain <- formatTrain(train)
 dataCurr  <- formatTest(data$dataCurrent, dataTrain)
 dataPlan  <- formatTest(data$dataPlan, dataTrain)
 dataWacht <- formatTest(data$wachtlijst, dataTrain)

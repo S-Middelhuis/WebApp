@@ -89,8 +89,6 @@ server <- function(input, output, session) {
         output$overzichtIC_2 <- renderTable(IC[n:nrow(IC),])
     })
   })
-
-  
   
   observeEvent(input$btn_refresh, {
     deps <- input$checkGroup
@@ -135,7 +133,6 @@ server <- function(input, output, session) {
       
     })
   })
-  
   
   # Render table of clicked date
   observeEvent(input$plot_click, {
