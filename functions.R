@@ -31,13 +31,14 @@ deps[deps == 3] <- "2C"
 deps[deps == 4] <- "2D"
 
 # Load data
-data <- loadData(networkPath)
+train <- loadTrainData();
+data  <- loadData(networkPath)
 
 # Make overview 
 getOverview(data$iclist, data$dataPlanning, deps)
 
 # Pre-format data 
-data$train <- data$train[data$train$afdelingcode %in% c("2A", "2B", "2C", "2D"), ]
+train <- train[train$afdelingcode %in% c("2A", "2B", "2C", "2D"), ]
 data$dataPlanning <- data$dataPlanning %>%
   filter(reserveringsafdeling %in% deps | grepl("Carotis", okverrichtingomschrijving) == T) %>%
   filter(opnemendspecialisme != "GYN") %>%
@@ -106,15 +107,15 @@ return(fc)
 }
 
 
-#' @title Load data.
-#' @description Function to load the data.
+#' @title Load training data.
+#' @description Function to load the data from directory.
 #' @param path
 #' @export
-loadData <- function(path){
+loadTrainData <- function(){
   # Read all train files
-  dat16 <- read.dta13('Data/2016.dta')
-  dat17 <- read.dta13('Data/2017.dta')
-  dat18 <- read.dta13('Data/2018.dta')
+  dat16 <- read.dta13('../Data/2016.dta')
+  dat17 <- read.dta13('../Data/2017.dta')
+  dat18 <- read.dta13('../Data/2018.dta')
   
   # Fix that columns are the same for each year
   dat16 <- dat16[,colnames(dat16) %in% colnames(dat17)]
@@ -129,31 +130,21 @@ loadData <- function(path){
   # Bind years together
   datTrain <- rbind(dat16, dat17, dat18)
   
-  # Read all files from network location
-  datCurrent  <- read_excel(file.path(path, "Huidig_Bedbezetting_Beddenhuis.xlsx"))
-  datPlanning <- read_excel(file.path(path, "Toekomstige_Bedbezetting_Beddenhuis.xlsx"))
-  wachtlijst  <- read_excel(file.path(path, "Wachtlijst_tbv_beddenhuis.xlsx"))
-  iclist      <- read_excel(file.path(path, "postoperatief.xlsx"))
-  
-  # Fix date time in planning data
-  datPlanning$laatstemutatiedatumtijd <- as.POSIXct(datPlanning$laatstemutatiedatumtijd, format = "%d-%m-%Y %H:%M")
-  datPlanning$laatstemutatiedatumtijd <- as.Date(datPlanning$laatstemutatiedatumtijd)
-  
-  return(list("train" = datTrain, "dataCurrent" = datCurrent, "dataPlanning" = datPlanning, "wachtlijst" = wachtlijst, "iclist" = iclist))
+  return(datTrain)
 }
 
 
-#' @title Reload data.
-#' @description Function to load the data.
+#' @title Load data.
+#' @description Function to load the data from network path.
 #' @param path
 #' @export
-reloadData <- function(path){
+loadData <- function(path){
   
   # Read all files from network location
   datCurrent  <- read_excel(file.path(path, "Huidig_Bedbezetting_Beddenhuis.xlsx"))
   datPlanning <- read_excel(file.path(path, "Toekomstige_Bedbezetting_Beddenhuis.xlsx"))
   wachtlijst  <- read_excel(file.path(path, "Wachtlijst_tbv_beddenhuis.xlsx"))
-  iclist      <- read_excel(file.path(path, "postoperatief.xlsx"))
+  iclist      <- read_excel(file.path(path, "Postoperatief_bestemming_IC_MC.xlsx"))
   
   # Fix date time in planning data
   datPlanning$laatstemutatiedatumtijd <- as.POSIXct(datPlanning$laatstemutatiedatumtijd, format = "%d-%m-%Y %H:%M")
@@ -449,7 +440,7 @@ reload <- function(deps){
   networkPath <- "\\\\nas001\\MMC-ALG\\Data-analyse-BI\\Building Blocks\\Planners\\Data"
   
   # Load new data
-  data <- reloadData(networkPath)
+  data <- loadData(networkPath)
   
   # Change format selected departments
   deps = as.integer(deps)
@@ -527,7 +518,7 @@ reload <- function(deps){
   maxWeekend <- 8
   maxWeekday <- 14
   fc$max <- ifelse(weekdays(fc$dates) %in% c("zaterdag", "zondag"), maxWeekend, maxWeekday)
-  write.csv(fc, 'Data/fc.csv')
+  write.csv(fc, '../Data/fc.csv')
 
   # Prepare data for app tabs
   getCurrent(data$dataCurrent, deps)
